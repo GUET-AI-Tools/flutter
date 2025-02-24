@@ -1,3 +1,4 @@
+import 'package:ai_tool/routes/display_route.dart';
 import 'package:ai_tool/routes/input_route.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
         '1':(context) => MyHomePage(title: '主页'),
-        'input':(context) => InputRoute()
+        'input':(context) => InputRoute(),
+        'display':(context) => DisplayRoute()
       },
       home: const LoginPage(),
     );
@@ -69,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             ElevatedButton(onPressed: () {
-
+              Navigator.pushNamed(context, 'display');
             },
                 child: Text('我有什么吃的')
             ),

@@ -114,12 +114,14 @@ class _InputRouteState extends State<InputRoute> {
                             '${username}_database.db',
                             version: 1,
                             onCreate: ((Database db, int version) async {
+
                               await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
                             }
                             )
                         );
 
                         await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');  // 开发环境可能需要
+
 
 
                         Map<String, dynamic> food = jsonDecode(reply); // 不是哥们，原来你把内层的也转化成对象了吗
@@ -155,8 +157,10 @@ class _InputRouteState extends State<InputRoute> {
                               }
                               else {
                                 await db.rawInsert(
+
                                     'INSERT INTO Food(name, value, type) VALUES(?, ?, ?)',
                                     [name, number, aTypeOfFood]
+
                                 );
                               }
                             }
@@ -247,7 +251,7 @@ class _InputRouteState extends State<InputRoute> {
         '${username}_database.db',
         version: 1,
         onCreate: ((Database db, int version) async {
-          await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL)');
+          await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
         }
         )
     );

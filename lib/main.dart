@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
+
         'homepage':(context) => MyHomePage(title: '主页'),
         'input':(context) => InputRoute(),
         'display':(context) => DisplayRoute()

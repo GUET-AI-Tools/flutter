@@ -1,10 +1,11 @@
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+
 import 'package:sqflite/sqflite.dart';
 
 class DisplayRoute extends StatefulWidget {
-
 
   @override
   State<StatefulWidget> createState() => _DisplayRouteState();
@@ -18,6 +19,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
 
   String username = 'default';
 
+
   int? selectedIndex;
 
   final TextEditingController _numberController = TextEditingController();
@@ -27,6 +29,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
     _numberController.dispose();
     super.dispose();
   }
+
 
   Future<void> getData() async {
     Database db = await openDatabase(
@@ -42,6 +45,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
     );
 
     _itemCount = result.length;
+
 
     setState(() {
 
@@ -59,6 +63,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
       appBar: AppBar(
         title: Text('还有什么好吃的呢'),
 
+        
       ),
       body: _itemCount == 0
           ? Center(
@@ -70,6 +75,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
         ),
       )
           :
+
       foodGridList(),
 
     );

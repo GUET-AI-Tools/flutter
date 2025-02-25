@@ -114,12 +114,14 @@ class _InputRouteState extends State<InputRoute> {
                             '${username}_database.db',
                             version: 1,
                             onCreate: ((Database db, int version) async {
-                              await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL)');
+
+                              await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
                             }
                             )
                         );
 
-                        await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL)');  // 开发环境可能需要
+                        await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');  // 开发环境可能需要
+
 
 
                         Map<String, dynamic> food = jsonDecode(reply); // 不是哥们，原来你把内层的也转化成对象了吗
@@ -155,8 +157,10 @@ class _InputRouteState extends State<InputRoute> {
                               }
                               else {
                                 await db.rawInsert(
-                                    'INSERT INTO Food(name, value) VALUES(?, ?)',
-                                    [name, number]
+
+                                    'INSERT INTO Food(name, value, type) VALUES(?, ?, ?)',
+                                    [name, number, aTypeOfFood]
+
                                 );
                               }
                             }
@@ -170,6 +174,10 @@ class _InputRouteState extends State<InputRoute> {
                         print('finish');
                       },
                       child: Text('识别')
+                  ),
+                  ElevatedButton(
+                      onPressed: _deleteAll, 
+                      child: Text('删除所有食材（调试功能）')
                   )
 
                 ],
@@ -236,5 +244,23 @@ class _InputRouteState extends State<InputRoute> {
     } catch (e) {
       print('请求失败：$e');
     }
+  }
+
+  Future<void> _deleteAll() async { // 清空数据
+    var db = await openDatabase(
+        '${username}_database.db',
+        version: 1,
+        onCreate: ((Database db, int version) async {
+          await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
+        }
+        )
+    );
+
+    await db.execute('DROP TABLE IF EXISTS Food');
+
+    await db.close();
+
+    print('删完了');
+    return;
   }
 }

@@ -41,6 +41,9 @@ dependencies:
   sqflite: ^2.4.1
   markdown_widget: ^2.3.2+6
 
+  flutter_staggered_animations: ^1.1.1
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

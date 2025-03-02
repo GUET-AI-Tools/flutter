@@ -1,6 +1,7 @@
 import 'package:ai_tool/routes/input_route.dart';
-import 'package:ai_tool/routes/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:ai_tool/routes/login_route.dart'; // 登录页面
+import 'package:ai_tool/routes/tabs.dart'; // 导入 tabs.dart 文件
 
 void main() {
   runApp(const MyApp());
@@ -15,15 +16,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 255, 149, 83)),
         useMaterial3: true,
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
-        '1':(context) => MyHomePage(title: '主页'),
-        'input':(context) => InputRoute()
+        '/login': (context) => const LoginPage(), // 登录页面的路由名称
+        'homepage': (context) => const TabsPage(), // 底部导航栏页面
       },
-      home:LoginPage(),
+      home: const LoginPage(),
     );
   }
 }
@@ -51,6 +52,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
 
+    // Navigator.of(context).removeRoute(LoginPage() as Route);
+
     return Scaffold(
       appBar: AppBar(
 
@@ -70,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             ElevatedButton(onPressed: () {
-
+              Navigator.pushNamed(context, 'display');
             },
                 child: Text('我有什么吃的')
             ),

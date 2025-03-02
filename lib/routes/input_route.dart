@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 class InputRoute extends StatefulWidget {
 
@@ -18,6 +20,13 @@ class _InputRouteState extends State<InputRoute> {
   String base64Image = ''; // base64图片
   File? _image; // 图片
 
+  String username = 'default';
+
+
+  List<String> foodTypes = ['谷物', '蔬菜', '水果', '豆类', '坚果', '肉类', '蛋类', '乳制品', '油脂', '糖类', '罐头'];
+
+  List recordAllFoodList = []; // 处理完后的所有所有食物以及它们的数量
+
   final ImagePicker _picker = ImagePicker(); // 字面意思
 
   // 豆包
@@ -26,6 +35,11 @@ class _InputRouteState extends State<InputRoute> {
       baseUrl: 'https://ark.cn-beijing.volces.com/api/v3'
   );
 
+  final SharedPreferencesAsync asyncPrefs = SharedPreferencesAsync(); // SharedPreferences
+
+  // Future<void> startDatabase(String username) async {
+  //   var db = await openDatabase('${username}_database');
+  // }
 
   // 图片变成base64
   Future<String> imageToBase64(File? image) async {
@@ -38,31 +52,30 @@ class _InputRouteState extends State<InputRoute> {
     String base64Image = base64Encode(imageBytes);
     return base64Image;
   }
+  // 从相册选取图片
+  Future<void> _pickImageFromGallery() async {
+    final XFile? pickedFile =
+    await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  // 相机拍照
+  Future<void> _captureImageFromCamera() async {
+    final XFile? pickedFile =
+    await _picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    // 从相册选取图片
-    Future<void> _pickImageFromGallery() async {
-      final XFile? pickedFile =
-      await _picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() {
-          _image = File(pickedFile.path);
-        });
-      }
-    }
-
-    // 相机拍照
-    Future<void> _captureImageFromCamera() async {
-      final XFile? pickedFile =
-      await _picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        setState(() {
-          _image = File(pickedFile.path);
-        });
-      }
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -94,8 +107,77 @@ class _InputRouteState extends State<InputRoute> {
                     ],
                   ),
                   ElevatedButton(
-                      onPressed: _fullResponse,
+                      onPressed: () async {
+                        await _fullResponse(); // 等ai响应
+
+                        var db = await openDatabase(
+                            '${username}_database.db',
+                            version: 1,
+                            onCreate: ((Database db, int version) async {
+
+                              await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
+                            }
+                            )
+                        );
+
+                        await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');  // 开发环境可能需要
+
+
+
+                        Map<String, dynamic> food = jsonDecode(reply); // 不是哥们，原来你把内层的也转化成对象了吗
+
+                        for (var aTypeOfFood in foodTypes) {
+                          List foodList = food[aTypeOfFood] as List;
+                          for (var aFood in foodList) { // 不是哥们
+                            // print(j.runtimeType);
+                            Map<String, dynamic> aFoodObject = aFood;
+
+                            recordAllFoodList.add(aFoodObject); // 记录所有添加的食材
+
+                            for (var entry in aFoodObject.entries) {
+
+                              String name = entry.key;
+                              dynamic number = entry.value;
+
+                              List<Map<String, dynamic>> searchResult = await db.query(
+                                  'Food',
+                                  where: 'name = ?',
+                                  whereArgs: [name]
+
+                              );
+
+                              if (searchResult.isNotEmpty) { // 如果先前有这条食材
+                                Map<String, dynamic> result = searchResult.first;
+                                double beforeNumber = result['value'] ?? 0;
+
+                                await db.rawUpdate( // 更新数据
+                                    'UPDATE Food SET value = ? WHERE name = ?',
+                                    [(beforeNumber + number).round(), name]
+                                );
+                              }
+                              else {
+                                await db.rawInsert(
+
+                                    'INSERT INTO Food(name, value, type) VALUES(?, ?, ?)',
+                                    [name, number, aTypeOfFood]
+
+                                );
+                              }
+                            }
+
+                          }
+
+                        }
+
+                        await db.close();
+
+                        print('finish');
+                      },
                       child: Text('识别')
+                  ),
+                  ElevatedButton(
+                      onPressed: _deleteAll, 
+                      child: Text('删除所有食材（调试功能）')
                   )
 
                 ],
@@ -162,5 +244,23 @@ class _InputRouteState extends State<InputRoute> {
     } catch (e) {
       print('请求失败：$e');
     }
+  }
+
+  Future<void> _deleteAll() async { // 清空数据
+    var db = await openDatabase(
+        '${username}_database.db',
+        version: 1,
+        onCreate: ((Database db, int version) async {
+          await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
+        }
+        )
+    );
+
+    await db.execute('DROP TABLE IF EXISTS Food');
+
+    await db.close();
+
+    print('删完了');
+    return;
   }
 }

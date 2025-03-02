@@ -75,8 +75,14 @@ class _MyHomePageState extends State<MyHomePage> {
             ElevatedButton(onPressed: () {
               Navigator.pushNamed(context, 'display');
             },
-                child: Text('我有什么吃的')
+                child: Text('我有什么吃的'),
+
             ),
+      ElevatedButton(
+        onPressed: () {
+          Navigator.pushReplacementNamed(context, '/login');
+        },
+        child: Text('退出登录(调试)'),)
           ],
         ),
       ),

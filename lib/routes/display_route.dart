@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:ai_tool/global/static.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,6 +22,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
   late List<Map<String, dynamic>> result;
 
   String username = 'default';
+  late String jsonFoodList;
 
   Map<String, dynamic> foodMap = {};
 
@@ -104,6 +106,8 @@ class _DisplayRouteState extends State<DisplayRoute> {
             ? (result[index]['value'] as double).roundToDouble()
             : ((result[index]['value'] as double) * pow(10, 2)).round() / 100;
 
+        (foodMap[result[index]['type']] as List).add({name : number});
+
 
 
         return AnimationConfiguration.staggeredGrid(
@@ -124,7 +128,10 @@ class _DisplayRouteState extends State<DisplayRoute> {
                             _numberController.text = double.parse((result[index]['value'] as double).toStringAsFixed(2)) * 100 % 100 == 0
                                 ? number.toInt().toString()
                                 : (result[index]['value'] as double).toStringAsFixed(2);
+                            jsonFoodList = jsonEncode(foodMap);
+                            print(jsonFoodList);
                             print('点了$index');
+
                           },
 
                           borderRadius: BorderRadius.circular(16),

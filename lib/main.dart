@@ -1,9 +1,11 @@
+
 import 'package:ai_tool/routes/display_route.dart';
 import 'package:ai_tool/routes/input_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_tool/routes/login_route.dart'; // 登录页面
-import 'package:ai_tool/routes/tabs.dart';
-import 'package:fluttertoast/fluttertoast.dart'; // 导入 tabs.dart 文件
+import 'package:ai_tool/routes/tabs.dart'; // 导入 tabs.dart 文件
+import 'package:fluttertoast/fluttertoast.dart'; 
+
 
 void main() {
   runApp(const MyApp());
@@ -23,6 +25,7 @@ class MyApp extends StatelessWidget {
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
+
         'login': (context) => LoginPage(), // 登录页面的路由名称
         'homepage': (context) => TabsPage(), // 底部导航栏页面
 
@@ -30,6 +33,7 @@ class MyApp extends StatelessWidget {
         'display':(context) => DisplayRoute()
       },
       initialRoute: 'login',
+
     );
   }
 }

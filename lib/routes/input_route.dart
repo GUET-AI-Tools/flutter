@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:ai_tool/global/static.dart';
 import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 class InputRoute extends StatefulWidget {
+  const InputRoute({super.key});
+
 
   @override
   State<StatefulWidget> createState() => _InputRouteState();
@@ -23,7 +26,6 @@ class _InputRouteState extends State<InputRoute> {
   String username = 'default';
 
 
-  List<String> foodTypes = ['谷物', '蔬菜', '水果', '豆类', '坚果', '肉类', '蛋类', '乳制品', '油脂', '糖类', '罐头'];
 
   List recordAllFoodList = []; // 处理完后的所有所有食物以及它们的数量
 
@@ -78,9 +80,9 @@ class _InputRouteState extends State<InputRoute> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('食材我来辣'),
-      ),
+      // appBar: AppBar(
+      //   title: Text('食材我来辣'),
+      // ),
 
       body: Scrollbar(
           child: SingleChildScrollView(
@@ -88,6 +90,11 @@ class _InputRouteState extends State<InputRoute> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  SizedBox(
+                    height: 100,
+                    width: 20,
+                  ),
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 
@@ -126,7 +133,7 @@ class _InputRouteState extends State<InputRoute> {
 
                         Map<String, dynamic> food = jsonDecode(reply); // 不是哥们，原来你把内层的也转化成对象了吗
 
-                        for (var aTypeOfFood in foodTypes) {
+                        for (var aTypeOfFood in Global.foodTypes) {
                           List foodList = food[aTypeOfFood] as List;
                           for (var aFood in foodList) { // 不是哥们
                             // print(j.runtimeType);

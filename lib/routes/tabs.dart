@@ -29,10 +29,12 @@ class _TabsPageState extends State<TabsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_pages[_selectedIndex].toString().split('(')[0]),
-        backgroundColor: const Color.fromARGB(255, 255, 149, 83),
-      ),
+
+      // appBar: AppBar(
+      //   title: Text(_pages[_selectedIndex].toString().split('(')[0]),
+      //   backgroundColor: const Color.fromARGB(255, 255, 149, 83),
+      // ),
+
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,

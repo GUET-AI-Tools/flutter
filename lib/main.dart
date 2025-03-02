@@ -1,6 +1,11 @@
+
+import 'package:ai_tool/routes/display_route.dart';
+import 'package:ai_tool/routes/input_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_tool/routes/login_route.dart'; // 登录页面
 import 'package:ai_tool/routes/tabs.dart'; // 导入 tabs.dart 文件
+import 'package:fluttertoast/fluttertoast.dart'; 
+
 
 void main() {
   runApp(const MyApp());
@@ -20,10 +25,15 @@ class MyApp extends StatelessWidget {
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       routes: {
-        '/login': (context) => const LoginPage(), // 登录页面的路由名称
-        'homepage': (context) => const TabsPage(), // 底部导航栏页面
+
+        'login': (context) => LoginPage(), // 登录页面的路由名称
+        'homepage': (context) => TabsPage(), // 底部导航栏页面
+
+        'input':(context) => InputRoute(),
+        'display':(context) => DisplayRoute()
       },
-      initialRoute: '/login',
+      initialRoute: 'login',
+
     );
   }
 }
@@ -65,17 +75,26 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(onPressed: () {
-              Navigator.pushNamed(context, 'input');
-            },
-                child: Text('去添加食材')
-            ),
-
-            ElevatedButton(onPressed: () {
-              Navigator.pushNamed(context, 'display');
-            },
-                child: Text('我有什么吃的')
-            ),
+            Text('现在这里还什么都没有'),
+            
+            ElevatedButton(onPressed: () { // 暂时的返回登录界面
+              Fluttertoast.showToast(
+                msg: '你这个人，真的满脑子都是自己呢',
+              );
+              Navigator.pushReplacementNamed(context, 'login');
+            }, child: Text('我是来退出CRYCHIC的')),
+            
+            // ElevatedButton(onPressed: () {
+            //   Navigator.pushNamed(context, 'input');
+            // },
+            //     child: Text('去添加食材')
+            // ),
+            //
+            // ElevatedButton(onPressed: () {
+            //   Navigator.pushNamed(context, 'display');
+            // },
+            //     child: Text('我有什么吃的')
+            // ),
           ],
         ),
       ),

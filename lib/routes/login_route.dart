@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -71,8 +72,10 @@ class LoginPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       // 处理注册逻辑
-                      ClickedMessage(content: "成功点击注册按钮").show(context);
-                    },
+                      // ClickedMessage(content: "成功点击注册按钮").show(context);
+
+                      Fluttertoast.showToast(msg: '成功点击注册按钮');
+                      },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       shape: RoundedRectangleBorder(
@@ -91,7 +94,9 @@ class LoginPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       // 处理登录逻辑
-                      ClickedMessage(content: "成功点击登录按钮").show(context);
+                      // ClickedMessage(content: "成功点击登录按钮").show(context);
+
+                      Fluttertoast.showToast(msg: '成功点击登录按钮');
 
                       Navigator.pushReplacementNamed(context, 'homepage'); // 暂时先这样
 

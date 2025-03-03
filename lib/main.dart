@@ -70,20 +70,25 @@ class _MyHomePageState extends State<MyHomePage> {
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
+        actions: [
+          IconButton(onPressed: () {
+            Fluttertoast.showToast(
+              msg: '你这个人，真的满脑子都是自己呢',
+            );
+            Navigator.pushReplacementNamed(context, 'login');
+          },
+              icon: Icon(Icons.exit_to_app)
+          )
+        ],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text('现在这里还什么都没有'),
-            
-            ElevatedButton(onPressed: () { // 暂时的返回登录界面
-              Fluttertoast.showToast(
-                msg: '你这个人，真的满脑子都是自己呢',
-              );
-              Navigator.pushReplacementNamed(context, 'login');
-            }, child: Text('我是来退出CRYCHIC的')),
-            
+
+
+
             // ElevatedButton(onPressed: () {
             //   Navigator.pushNamed(context, 'input');
             // },

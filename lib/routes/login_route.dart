@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 //登录页面
 class LoginPage extends StatefulWidget {
@@ -100,11 +102,12 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      // 处理注册逻辑，跳转到注册页面
+                      // 处理注册逻辑
+                      Fluttertoast.showToast(msg: '成功点击注册按钮');
                       Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => const RegisterPage()),
-                      );
+                      )
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -124,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                     onPressed: () {
                       // 处理登录逻辑
-                      ClickedMessage(content: "成功点击登录按钮").show(context);
+                      Fluttertoast.showToast(msg: '成功点击登录按钮');
 
                       Navigator.pushReplacementNamed(context, 'homepage'); // 暂时先这样
                     },

@@ -1,4 +1,6 @@
-
+import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 import 'package:ai_tool/routes/display_route.dart';
 import 'package:ai_tool/routes/input_route.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +9,16 @@ import 'package:ai_tool/routes/tabs.dart'; // 导入 tabs.dart 文件
 import 'package:fluttertoast/fluttertoast.dart'; 
 
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final database = openDatabase(
+    join(await getDatabasesPath(), 'user_database.db'),
+    onCreate: (db, version){
+      return db.execute("CREATE TABLE user(id INTEGER PRIMARY KEY, username TEXT, password TEXT)",
+      );
+    },
+    version: 1,
+  );
   runApp(const MyApp());
 }
 

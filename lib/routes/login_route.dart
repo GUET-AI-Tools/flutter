@@ -238,7 +238,7 @@ class RegisterPage extends StatelessWidget {
                   // 返回按钮（已添加导航功能）
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context); // 关键修改点
+                      Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey,

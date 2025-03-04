@@ -1,11 +1,15 @@
-
+import 'dart:convert';
+import 'dart:math';
+import 'package:ai_tool/global/static.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-
 import 'package:sqflite/sqflite.dart';
 
 class DisplayRoute extends StatefulWidget {
+  const DisplayRoute({super.key});
+
 
   @override
   State<StatefulWidget> createState() => _DisplayRouteState();
@@ -18,11 +22,15 @@ class _DisplayRouteState extends State<DisplayRoute> {
   late List<Map<String, dynamic>> result;
 
   String username = 'default';
+  late String jsonFoodList;
 
+  Map<String, dynamic> foodMap = {};
 
   int? selectedIndex;
 
   final TextEditingController _numberController = TextEditingController();
+
+  late Database db;
 
   @override
   void dispose() {
@@ -32,7 +40,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
 
 
   Future<void> getData() async {
-    Database db = await openDatabase(
+    db = await openDatabase(
       '${username}_database.db',
       version: 1,
       onCreate: ((Database db, int version) async {
@@ -59,12 +67,14 @@ class _DisplayRouteState extends State<DisplayRoute> {
 
     getData();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('还有什么好吃的呢'),
+    for (var i in Global.foodTypes) {
+      foodMap.addAll({i : []});
+    }
 
-        
-      ),
+    return Scaffold(
+      // appBar: AppBar(
+      //   title: Text('还有什么好吃的呢'),
+      // ),
       body: _itemCount == 0
           ? Center(
         child: Column(
@@ -92,9 +102,13 @@ class _DisplayRouteState extends State<DisplayRoute> {
       itemBuilder: (BuildContext context, int index) {
 
         String name = result[index]['name'];
-        double number = result[index]['value'] is int
-            ? (result[index]['value'] as int).toDouble()
-            : result[index]['value'];
+        double number = double.parse((result[index]['value'] as double).toStringAsFixed(2)) * 100 % 100 == 0// 保留两位小数
+            ? (result[index]['value'] as double).roundToDouble()
+            : ((result[index]['value'] as double) * pow(10, 2)).round() / 100;
+
+        (foodMap[result[index]['type']] as List).add({name : number});
+
+
 
         return AnimationConfiguration.staggeredGrid(
             position: index,
@@ -111,8 +125,13 @@ class _DisplayRouteState extends State<DisplayRoute> {
 
                           onTap: () {
                             selectedIndex = index;
-                            _numberController.text = number.toInt().toString();
+                            _numberController.text = double.parse((result[index]['value'] as double).toStringAsFixed(2)) * 100 % 100 == 0
+                                ? number.toInt().toString()
+                                : (result[index]['value'] as double).toStringAsFixed(2);
+                            jsonFoodList = jsonEncode(foodMap);
+                            print(jsonFoodList);
                             print('点了$index');
+
                           },
 
                           borderRadius: BorderRadius.circular(16),
@@ -145,7 +164,14 @@ class _DisplayRouteState extends State<DisplayRoute> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     if (selectedIndex == index)
-                                    IconButton(onPressed: () {
+                                    IconButton(onPressed: () { // -1按钮
+                                      number -= 1;
+                                      db.rawUpdate('UPDATE Food SET value = ? WHERE name = ?', [number, name]);
+                                      setState(() {
+                                        _numberController.text = double.parse((result[index]['value'] as double).toStringAsFixed(2)) * 100 % 100 == 0
+                                            ? number.toInt().toString()
+                                            : number.toStringAsFixed(2);
+                                      });
 
                                     },
                                         icon: Icon(CupertinoIcons.minus_circle)
@@ -159,16 +185,35 @@ class _DisplayRouteState extends State<DisplayRoute> {
                                           controller: _numberController,
                                           textAlign: TextAlign.center,
                                           keyboardType: TextInputType.number,
+                                          inputFormatters: [
+                                            LengthLimitingTextInputFormatter(5),
+                                            FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')) //输入限制
+                                          ],
+                                          
+                                          onChanged: (v) {
+                                            number = double.parse(v);
+                                            db.rawUpdate('UPDATE Food SET value = ? WHERE name = ?', [number, name]);
+                                          },
 
                                         ),
                                       )
                                     else
-                                    Text('${number.round()}',
+                                    Text(double.parse((result[index]['value'] as double).toStringAsFixed(2)) * 100 % 100 == 0
+                                        ? number.toInt().toString()
+                                        : (result[index]['value'] as double).toStringAsFixed(2),
                                         textScaler: TextScaler.linear(1.2)
                                     ),
 
                                     if (selectedIndex == index)
-                                    IconButton(onPressed: () {
+                                    IconButton(onPressed: () { // +1按钮
+                                      number += 1;
+                                      db.rawUpdate('UPDATE Food SET value = ? WHERE name = ?', [number, name]);
+                                      setState(() {
+                                        _numberController.text = double.parse((result[index]['value'] as double).toStringAsFixed(2)) * 100 % 100 == 0
+                                            ? number.toInt().toString()
+                                            : number.toStringAsFixed(2);
+                                      });
+
                                     }, 
                                         icon: Icon(CupertinoIcons.plus_circle)
                                     )

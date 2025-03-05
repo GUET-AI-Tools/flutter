@@ -8,7 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //登录页面
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({super.key, required Database database});
 
   @override
   State<LoginPage> createState() => _LoginPageState();

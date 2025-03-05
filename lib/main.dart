@@ -11,7 +11,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final database = openDatabase(
+  final database = await openDatabase(
     join(await getDatabasesPath(), 'user_database.db'),
     onCreate: (db, version){
       return db.execute("CREATE TABLE user(id INTEGER PRIMARY KEY, username TEXT, password TEXT)",
@@ -19,11 +19,13 @@ Future<void> main() async {
     },
     version: 1,
   );
-  runApp(const MyApp());
+  runApp(MyApp(database: database));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Database database;
+
+  const MyApp({required this.database});
 
   // This widget is the root of your application.
   @override
@@ -35,13 +37,79 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      routes: {
-
-        'login': (context) => LoginPage(), // 登录页面的路由名称
-        'homepage': (context) => TabsPage(), // 底部导航栏页面
-
-        'input':(context) => InputRoute(),
-        'display':(context) => DisplayRoute()
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case 'login':
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => LoginPage(database: database),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            );
+          case 'homepage':
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => TabsPage(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            );
+          case 'input':
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => InputRoute(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            );
+          case 'display':
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => DisplayRoute(),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            );
+          default:
+            return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) => LoginPage(database: database),
+              transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                const begin = Offset(1.0, 0.0);
+                const end = Offset.zero;
+                const curve = Curves.easeInOut;
+                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                return SlideTransition(
+                  position: animation.drive(tween),
+                  child: child,
+                );
+              },
+            );
+        }
       },
       initialRoute: 'login',
 

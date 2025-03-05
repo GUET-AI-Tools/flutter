@@ -3,10 +3,12 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ai_tool/global/static.dart';
+import 'package:ai_tool/service/db_operations.dart';
 import 'package:flutter/material.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:openai_dart/openai_dart.dart' as openai;
 import 'package:sqflite/sqflite.dart';
+
 
 class RecipeRoute extends StatefulWidget {
 
@@ -19,17 +21,20 @@ class _RecipeRouteState extends State<RecipeRoute> {
   Map<String, dynamic> foodMap = {};
 
   final client = openai.OpenAIClient(
-    apiKey: Global.dsApiKey,
-    baseUrl: Global.dsBaseUrl
+    apiKey: Global.doubaoApiKey,
+    baseUrl: Global.doubaoBaseUrl
   );
 
-  String username = 'default';
+
+
+  String username = Global.username;
   late Database db;
   late List<Map<String, dynamic>> result;
   List selectedIndex = [];
 
   String reply = ''; // ai回复
   String recipe = ''; // 食谱部分
+  String consume = '';
 
   late String text = '';
 
@@ -111,13 +116,13 @@ class _RecipeRouteState extends State<RecipeRoute> {
 
       final stream = client.createChatCompletionStream(
         request: openai.CreateChatCompletionRequest(
-          model: openai.ChatCompletionModel.modelId(Global.dsModelId),
+          model: openai.ChatCompletionModel.modelId(Global.doubaoModelId),
           messages: [
             openai.ChatCompletionMessage.system(
                 content: Global.dsPrompt
             ),
             openai.ChatCompletionMessage.user(
-              content: openai.ChatCompletionUserMessageContentString(text)
+              content: openai.ChatCompletionUserMessageContent.string(text)
             ),
           ],
         ),
@@ -130,14 +135,17 @@ class _RecipeRouteState extends State<RecipeRoute> {
           reply += res.choices.first.delta.content!;
           stdout.write(res.choices.first.delta.content); // 不换行输出
 
-          List <String> replies = reply.split('-----');
+          List <String> replies = reply.split(RegExp(r'(<used_ingredients>|</used_ingredients>|<recipe>|</recipe>)\s*'));
 
-          if (replies.length == 1) {
+          if (replies.length == 2) {
+            consume = replies[1];
+          }
+          else if (replies.length > 3) {
+            consume = replies[1];
+            recipe = replies[3];
+          }
 
-          }
-          else {
-            recipe = replies[1];
-          }
+          // print(replies.length);
 
         });
       }
@@ -145,6 +153,7 @@ class _RecipeRouteState extends State<RecipeRoute> {
       print('finish');
 
       print(reply);
+      print(consume);
 
     } catch (e) {
       print('请求失败：$e');

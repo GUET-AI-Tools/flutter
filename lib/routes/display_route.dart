@@ -21,7 +21,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
 
   late List<Map<String, dynamic>> result;
 
-  String username = 'default';
+  String username = Global.username;
   late String jsonFoodList;
 
   Map<String, dynamic> foodMap = {};
@@ -75,18 +75,29 @@ class _DisplayRouteState extends State<DisplayRoute> {
       // appBar: AppBar(
       //   title: Text('还有什么好吃的呢'),
       // ),
-      body: _itemCount == 0
-          ? Center(
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('还没有添加食材哦')
+            TextField(
+              decoration: InputDecoration(
+                hintText: '搜索',
+                prefixIcon: Icon(Icons.search)
+              ),
+            ),
+            _itemCount == 0 
+                ? Text('还没有添加食材哦')
+                : Expanded(
+                child: foodGridList()
+            ),
+            
+            
           ],
         ),
       )
-          :
+          
 
-      foodGridList(),
+      
 
     );
   }

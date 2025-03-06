@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:ai_tool/global/static.dart';
-import 'package:ai_tool/service/db_operations.dart';
 import 'package:flutter/material.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:openai_dart/openai_dart.dart' as openai;
@@ -11,12 +10,14 @@ import 'package:sqflite/sqflite.dart';
 
 
 class RecipeRoute extends StatefulWidget {
+  const RecipeRoute({super.key});
+
 
   @override
   State<StatefulWidget> createState() => _RecipeRouteState();
 }
 
-class _RecipeRouteState extends State<RecipeRoute> {
+class _RecipeRouteState extends State<RecipeRoute> with AutomaticKeepAliveClientMixin {
 
   Map<String, dynamic> foodMap = {};
 
@@ -70,6 +71,7 @@ class _RecipeRouteState extends State<RecipeRoute> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
 
     for (var i in Global.foodTypes) {
       foodMap.addAll({i : []});
@@ -159,5 +161,8 @@ class _RecipeRouteState extends State<RecipeRoute> {
       print('请求失败：$e');
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }

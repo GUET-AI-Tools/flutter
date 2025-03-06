@@ -1,11 +1,16 @@
-import 'package:ai_tool/main.dart';
+import 'dart:io';
+
+import 'package:ai_tool/global/static.dart';
 import 'package:ai_tool/routes/recipe_route.dart';
+import 'package:ai_tool/service/ai_and_image_operations.dart';
 import 'package:ai_tool/service/db_operations.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // import 'package:ai_tool/routes/home_route.dart'; // 主页
 import 'package:ai_tool/routes/input_route.dart'; // 添加食材页面
-import 'package:ai_tool/routes/display_route.dart';
-import 'package:fluttertoast/fluttertoast.dart'; // 显示食材页面
+import 'package:ai_tool/routes/display_route.dart'; // 显示食材页面
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:openai_dart/openai_dart.dart' as openai;
 
 class TabsPage extends StatefulWidget {
   const TabsPage({super.key});
@@ -16,6 +21,8 @@ class TabsPage extends StatefulWidget {
 
 class _TabsPageState extends State<TabsPage> {
   int _selectedIndex = 0;
+  late PageController _pageController;
+  bool _isLoading = false;
 
   final List<Widget> _pages = [
     RecipeRoute(), // 食谱页
@@ -24,11 +31,36 @@ class _TabsPageState extends State<TabsPage> {
   ];
 
   final dbOperations = DbOperations();
+  final op = OtherOperations();
+
+  // 豆包
+  final client = openai.OpenAIClient(
+      apiKey: Global.doubaoApiKey,
+      baseUrl: Global.doubaoBaseUrl
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: _selectedIndex);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _pageController.animateToPage(
+          index,
+          duration: Duration(milliseconds: 250),
+          curve: Curves.easeInOut
+      );
     });
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
   }
 
   @override
@@ -58,7 +90,12 @@ class _TabsPageState extends State<TabsPage> {
         ],
       ),
 
-      body: _pages[_selectedIndex],
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        children: _pages,
+      ),
+
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
@@ -69,10 +106,20 @@ class _TabsPageState extends State<TabsPage> {
         ],
       ),
 
-      floatingActionButton: _selectedIndex == 1
-          ? FloatingActionButton(onPressed: () => _showMenu(context),
+      floatingActionButton: _selectedIndex == 1 // 在第二个页面则出现这个按钮
+          ? FloatingActionButton(
+        onPressed: _isLoading
+            ? () {
+          // 添加时就不能再打开菜单
+          Fluttertoast.showToast(msg: '正在添加……');
+        }
+        // 打开菜单
+            : () => _showMenu(context),
         shape: CircleBorder(),
-      child: Icon(Icons.add),
+
+      child: _isLoading 
+          ? Icon(Icons.loop) // 加载时的图标
+          : Icon(Icons.add), // 可以添加食材时的图标
       )
           : null
 
@@ -99,7 +146,30 @@ class _TabsPageState extends State<TabsPage> {
                     IconButton(
                       // focusColor: Color(0xFFEEFFD1),
                       color: Color.fromARGB(255, 255, 149, 83),
-                      onPressed: () {
+                      onPressed: () async {
+
+                        File? image;
+                        image = await op.captureImageFromCamera();
+
+                        if (image != null) {
+                          Navigator.pop(context);
+                          
+                          setState(() {
+                            _isLoading = true;
+                          });
+                          
+                          await op.updateFood(client, image);
+                          Fluttertoast.showToast(msg: '添加完成');
+
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+
+                        else {
+                          Fluttertoast.showToast(msg: '未选择照片');
+                        }
+
 
                       },
                       icon: Icon(
@@ -120,8 +190,30 @@ class _TabsPageState extends State<TabsPage> {
                     IconButton(
                       focusColor: Color(0xFFEEFFD1),
                       color: Color.fromARGB(255, 255, 149, 83),
-                      onPressed: () {
+                      onPressed: () async {
+                        File? image;
+                        image = await op.pickImageFromGallery();
 
+                        if (image != null) {
+                          Navigator.pop(context);
+
+                          setState(() {
+                            _isLoading = true;
+                          });
+
+                          await op.updateFood(client, image);
+                          Fluttertoast.showToast(msg: '添加完成');
+
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+
+                        else {
+                          Fluttertoast.showToast(msg: '未选择照片');
+                        }
+
+                        
                       },
                       icon: Icon(
                         Icons.photo,

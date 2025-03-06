@@ -15,7 +15,7 @@ class DisplayRoute extends StatefulWidget {
   State<StatefulWidget> createState() => _DisplayRouteState();
 }
 
-class _DisplayRouteState extends State<DisplayRoute> {
+class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClientMixin {
 
   int _itemCount = 0;
 
@@ -62,8 +62,10 @@ class _DisplayRouteState extends State<DisplayRoute> {
     return;
   }
 
+  // TODO 在食材更新后应重新build
   @override
   Widget build(BuildContext context) {
+    super.build(context);
 
     getData();
 
@@ -274,4 +276,7 @@ class _DisplayRouteState extends State<DisplayRoute> {
       }),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

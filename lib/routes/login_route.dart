@@ -8,14 +8,52 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 //登录页面
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key, required Database database});
+  final Database database;
+
+  const LoginPage({super.key, required this.database});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  bool _rememberPassword = false; // 新增记住密码状态
+  bool _rememberPassword = false; // 记住密码状态
+  final TextEditingController _usernameController = TextEditingController(); // 账号输入框控制器
+  final TextEditingController _passwordController = TextEditingController(); // 密码输入框控制器
+  String _errorMessage = ''; // 错误消息
+
+  // 登录验证方法
+  Future<bool> _login() async {
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = '请输入账号和密码';
+      });
+      return false;
+    }
+
+    // 查询数据库验证账号和密码
+    final List<Map<String, dynamic>> user = await widget.database.query(
+      'user',
+      where: 'username = ? AND password = ?',
+      whereArgs: [username, password],
+    );
+
+    if (user.isNotEmpty) {
+      // 登录成功
+      Fluttertoast.showToast(msg: '登录成功');
+      return true;
+
+    } else {
+      // 登录失败
+      setState(() {
+        _errorMessage = '账号或密码错误';
+      });
+    }
+    return false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +77,6 @@ class _LoginPageState extends State<LoginPage> {
                 color: Colors.green,
               ),
               const SizedBox(height: 20),
-              // 应用名
               const Text(
                 'AI-Tool',
                 style: TextStyle(
@@ -49,10 +86,11 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 40),
-              // 账号输入文本框
+              // 账号输入框
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     hintText: '请输入账号',
                     filled: true,
@@ -65,10 +103,11 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 20),
-              // 密码输入文本框
+              // 密码输入框
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: '请输入密码',
@@ -82,6 +121,13 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 40),
+              // 显示错误消息
+              if (_errorMessage.isNotEmpty)
+                Text(
+                  _errorMessage,
+                  style: TextStyle(color: Colors.red, fontSize: 16),
+                ),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -104,10 +150,9 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                     onPressed: () {
                       // 处理注册逻辑
-                      Fluttertoast.showToast(msg: '成功点击注册按钮');
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const RegisterPage()),
+                        MaterialPageRoute(builder: (context) => RegisterPage(database: widget.database)),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -126,12 +171,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      // 处理登录逻辑
-                      Fluttertoast.showToast(msg: '成功点击登录按钮');
-
-                      Navigator.pushReplacementNamed(context, 'homepage'); // 暂时先这样
-                    },
+                    onPressed:() async {
+                      if(await _login()) {
+                        Navigator.pushReplacementNamed(context, 'homepage');
+                      }
+                    }, // 调用登录验证方法
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       shape: RoundedRectangleBorder(
@@ -157,9 +201,53 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
+
+
+
+
+
+
 // 注册页面
-class RegisterPage extends StatelessWidget {
-  const RegisterPage({super.key});
+class RegisterPage extends StatefulWidget {
+  final Database database;
+
+  const RegisterPage({super.key, required this.database});
+
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  Future<bool> _register() async {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+    String confirmPassword = _confirmPasswordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      Fluttertoast.showToast(msg: "账号和密码不能为空");
+      return false;
+    }
+
+    if (password != confirmPassword) {
+      Fluttertoast.showToast(msg: "密码不一致");
+      return false;
+    }
+
+    // 插入到数据库
+    await widget.database.insert(
+      'user',
+      {'username': username, 'password': password},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    Fluttertoast.showToast(msg: "注册成功");
+
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -189,6 +277,7 @@ class RegisterPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: _usernameController,
                   decoration: InputDecoration(
                     hintText: '请输入账号',
                     filled: true,
@@ -205,6 +294,7 @@ class RegisterPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: '请输入密码',
@@ -222,6 +312,7 @@ class RegisterPage extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: _confirmPasswordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: '请重复输入密码',
@@ -235,7 +326,6 @@ class RegisterPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 40),
-              // 按钮行
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -261,7 +351,12 @@ class RegisterPage extends StatelessWidget {
                   ),
                   // 确认按钮
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed:() async {
+                      if(await _register()){
+                        Navigator.pop(context);
+                      };
+                    },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                       shape: RoundedRectangleBorder(
@@ -286,6 +381,7 @@ class RegisterPage extends StatelessWidget {
     );
   }
 }
+
 
 // 点击提示消息
 class ClickedMessage {

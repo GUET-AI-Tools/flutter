@@ -25,9 +25,8 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   final Database database;
 
-  const MyApp({required this.database});
+  const MyApp({required this.database, Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,84 +35,33 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 255, 149, 83)),
         useMaterial3: true,
       ),
-      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
       onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case 'login':
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => LoginPage(database: database),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
-            );
-          case 'homepage':
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => TabsPage(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
-            );
-          case 'input':
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => InputRoute(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
-            );
-          case 'display':
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => DisplayRoute(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
-            );
-          default:
-            return PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => LoginPage(database: database),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                return SlideTransition(
-                  position: animation.drive(tween),
-                  child: child,
-                );
-              },
-            );
-        }
+        return _buildMaterialPageRoute(settings);
       },
       initialRoute: 'login',
-
     );
+  }
+
+  Route<dynamic> _buildMaterialPageRoute(RouteSettings settings) {
+    Widget page;
+    switch (settings.name) {
+      case 'homepage':
+        page = TabsPage();
+        break;
+      case 'input':
+        page = InputRoute();
+        break;
+      case 'display':
+        page = DisplayRoute();
+        break;
+      case 'login':
+        page = LoginPage(database: database);
+        break;
+      default:
+        page = LoginPage(database: database);
+        break;
+    }
+    return MaterialPageRoute(builder: (context) => page, settings: settings);
   }
 }
 

@@ -62,7 +62,7 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
     return;
   }
 
-  // TODO 在食材更新后应重新build
+  // TODO 在食材更新后应重新build，并使InkWell失去焦点
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -90,7 +90,10 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
             _itemCount == 0 
                 ? Text('还没有添加食材哦')
                 : Expanded(
-                child: foodGridList()
+                child: RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: foodGridList()
+                )
             ),
             
             
@@ -275,6 +278,12 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
         );
       }),
     );
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+
+    });
   }
 
   @override

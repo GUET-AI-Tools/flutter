@@ -1,4 +1,6 @@
-
+import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 import 'package:ai_tool/routes/display_route.dart';
 import 'package:ai_tool/routes/input_route.dart';
 import 'package:flutter/material.dart';
@@ -7,14 +9,24 @@ import 'package:ai_tool/routes/tabs.dart'; // 导入 tabs.dart 文件
 import 'package:fluttertoast/fluttertoast.dart'; 
 
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final database = await openDatabase(
+    join(await getDatabasesPath(), 'user_database.db'),
+    onCreate: (db, version){
+      return db.execute("CREATE TABLE user(id INTEGER PRIMARY KEY, username TEXT, password TEXT)",
+      );
+    },
+    version: 1,
+  );
+  runApp(MyApp(database: database));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Database database;
 
-  // This widget is the root of your application.
+  const MyApp({required this.database, Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,18 +35,33 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 255, 149, 83)),
         useMaterial3: true,
       ),
-      // home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      routes: {
-
-        'login': (context) => LoginPage(), // 登录页面的路由名称
-        'homepage': (context) => TabsPage(), // 底部导航栏页面
-
-        'input':(context) => InputRoute(),
-        'display':(context) => DisplayRoute()
+      onGenerateRoute: (settings) {
+        return _buildMaterialPageRoute(settings);
       },
       initialRoute: 'login',
-
     );
+  }
+
+  Route<dynamic> _buildMaterialPageRoute(RouteSettings settings) {
+    Widget page;
+    switch (settings.name) {
+      case 'homepage':
+        page = TabsPage();
+        break;
+      case 'input':
+        page = InputRoute();
+        break;
+      case 'display':
+        page = DisplayRoute();
+        break;
+      case 'login':
+        page = LoginPage(database: database);
+        break;
+      default:
+        page = LoginPage(database: database);
+        break;
+    }
+    return MaterialPageRoute(builder: (context) => page, settings: settings);
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:ai_tool/global/static.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/widgets.dart';
@@ -173,6 +174,9 @@ class _LoginPageState extends State<LoginPage> {
                   ElevatedButton(
                     onPressed:() async {
                       if(await _login()) {
+                        // TODO 同步全局用户名与配置信息保存
+                        Global.username = _usernameController.text;
+
                         Navigator.pushReplacementNamed(context, 'homepage');
                       }
                     }, // 调用登录验证方法

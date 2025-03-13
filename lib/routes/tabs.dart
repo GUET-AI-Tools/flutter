@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 // import 'package:ai_tool/routes/home_route.dart'; // 主页
 import 'package:ai_tool/routes/input_route.dart'; // 添加食材页面
 import 'package:ai_tool/routes/display_route.dart'; // 显示食材页面
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:openai_dart/openai_dart.dart' as openai;
 
@@ -19,7 +20,11 @@ class TabsPage extends StatefulWidget {
   State<TabsPage> createState() => _TabsPageState();
 }
 
+
+
 class _TabsPageState extends State<TabsPage> {
+  DateTime? _lastSlideTime;
+
   int _selectedIndex = 0;
   late PageController _pageController;
   bool _isLoading = false;
@@ -32,6 +37,22 @@ class _TabsPageState extends State<TabsPage> {
 
   final dbOperations = DbOperations();
   final op = OtherOperations();
+
+  bool _shouldRefresh = false;
+
+  void refresh() {
+    setState(() {
+      _shouldRefresh = true;
+
+    });
+
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        _shouldRefresh = false;
+      });
+    });
+
+  }
 
   // 豆包
   final client = openai.OpenAIClient(
@@ -65,65 +86,84 @@ class _TabsPageState extends State<TabsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-
-      appBar: AppBar(
-        title: Text(_pages[_selectedIndex].toString().split('(')[0]),
-        backgroundColor: const Color.fromARGB(255, 255, 149, 83),
-        actions: [
-          if (_selectedIndex == 1) IconButton(onPressed: () { // 清除数据库数据
-            dbOperations.deleteAll();
-          },
-              icon: Icon(Icons.delete)
-          ),
-
-          IconButton(onPressed: () {
-            Fluttertoast.showToast(
-              msg: '“你这个人，真的满脑子都是自己呢”',
-            );
-            Navigator.pushReplacementNamed(context, 'login');
-          },
-              icon: Icon(Icons.exit_to_app)
-          ),
-
-
-        ],
-      ),
-
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: _pages,
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "食谱"),
-          BottomNavigationBarItem(icon: Icon(Icons.add), label: "添加食材"),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: "显示食材"),
-        ],
-      ),
-
-      floatingActionButton: _selectedIndex == 1 // 在第二个页面则出现这个按钮
-          ? FloatingActionButton(
-        onPressed: _isLoading
-            ? () {
-          // 添加时就不能再打开菜单
-          Fluttertoast.showToast(msg: '正在添加……');
+    return PopScope( // 防误触
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (_lastSlideTime == null || DateTime.now().difference(_lastSlideTime!) > Duration(seconds: 1)) {
+          _lastSlideTime = DateTime.now();
+          Fluttertoast.showToast(msg: '再按一次以退出');
+          return;
         }
-        // 打开菜单
-            : () => _showMenu(context),
-        shape: CircleBorder(),
 
-      child: _isLoading 
-          ? Icon(Icons.loop) // 加载时的图标
-          : Icon(Icons.add), // 可以添加食材时的图标
-      )
-          : null
+        else {
+          SystemNavigator.pop(); // Android only
+        }
 
-    ,
+      },
+
+        canPop: false,
+        child: Scaffold(
+
+          appBar: AppBar(
+            title: Text(_pages[_selectedIndex].toString().split('(')[0]),
+            backgroundColor: const Color.fromARGB(255, 255, 149, 83),
+            actions: [
+              if (_selectedIndex == 1) IconButton(onPressed: () { // 清除数据库数据
+                dbOperations.deleteAll();
+              },
+                  icon: Icon(Icons.delete)
+              ),
+
+              IconButton(onPressed: () { // 退出至登录页
+                Fluttertoast.showToast(
+                  msg: '“你这个人，真的满脑子都是自己呢”',
+                );
+                Navigator.pushReplacementNamed(context, 'login');
+              },
+                  icon: Icon(Icons.exit_to_app)
+              ),
+
+
+            ],
+          ),
+
+          body: RefreshInheritedWidget(
+              shouldRefresh: _shouldRefresh,
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                children: _pages,
+              )
+          ),
+
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: "食谱"),
+              BottomNavigationBarItem(icon: Icon(Icons.add), label: "添加食材"),
+              BottomNavigationBarItem(icon: Icon(Icons.list), label: "显示食材"),
+            ],
+          ),
+
+          floatingActionButton: _selectedIndex == 1 // 在第二个页面则出现这个按钮
+              ? FloatingActionButton(
+            onPressed: _isLoading
+                ? () {
+              // 添加时就不能再打开菜单
+              Fluttertoast.showToast(msg: '正在添加……');
+            }
+            // 打开菜单
+                : () => _showMenu(context),
+            shape: CircleBorder(),
+
+            child: _isLoading
+                ? Icon(Icons.loop) // 加载时的图标
+                : Icon(Icons.add), // 可以添加食材时的图标
+          )
+              : null
+
+          ,
+        )
     );
   }
 
@@ -164,6 +204,8 @@ class _TabsPageState extends State<TabsPage> {
                           setState(() {
                             _isLoading = false;
                           });
+
+                          refresh(); // 刷新界面
                         }
 
                         else {
@@ -196,6 +238,7 @@ class _TabsPageState extends State<TabsPage> {
 
                         if (image != null) {
                           Navigator.pop(context);
+                          Fluttertoast.showToast(msg: '正在添加食材……');
 
                           setState(() {
                             _isLoading = true;
@@ -207,6 +250,8 @@ class _TabsPageState extends State<TabsPage> {
                           setState(() {
                             _isLoading = false;
                           });
+
+                          refresh(); // 刷新界面
                         }
 
                         else {
@@ -233,4 +278,25 @@ class _TabsPageState extends State<TabsPage> {
         }
     );
   }
+}
+
+class RefreshInheritedWidget extends InheritedWidget {
+  final bool shouldRefresh;
+
+  const RefreshInheritedWidget({
+    super.key,
+    required this.shouldRefresh,
+    required super.child
+  });
+
+  static RefreshInheritedWidget? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<RefreshInheritedWidget>();
+  }
+
+
+  @override
+  bool updateShouldNotify(RefreshInheritedWidget oldWidget) {
+    return shouldRefresh != oldWidget.shouldRefresh;
+  }
+
 }

@@ -99,43 +99,42 @@ class OtherOperations {
   for (var aTypeOfFood in Global.foodTypes) {
     List foodList = food[aTypeOfFood] as List;
     for (var aFood in foodList) { // 不是哥们
-    // print(j.runtimeType);
-    Map<String, dynamic> aFoodObject = aFood;
+      // print(j.runtimeType);
+      Map<String, dynamic> aFoodObject = aFood;
 
-  // recordAllFoodList.add(aFoodObject); // 记录所有添加的食材 // 暂时弃用
+      // recordAllFoodList.add(aFoodObject); // 记录所有添加的食材 // 暂时弃用
 
-  for (var entry in aFoodObject.entries) {
+      for (var entry in aFoodObject.entries) {
 
-    String name = entry.key;
-    dynamic number = entry.value;
+        String name = entry.key;
+        dynamic number = entry.value;
 
-    List<Map<String, dynamic>> searchResult = await db.query(
-      'Food',
-     where: 'name = ?',
-      whereArgs: [name]
-
-    );
-
-    if (searchResult.isNotEmpty) { // 如果先前有这条食材
-      Map<String, dynamic> result = searchResult.first;
-      double beforeNumber = result['value'] ?? 0;
-
-      await db.rawUpdate( // 更新数据
-      'UPDATE Food SET value = ? WHERE name = ?',
-      [(beforeNumber + number).round(), name]
-      );
-    }
-      else {
-         await db.rawInsert(
-
-          'INSERT INTO Food(name, value, type) VALUES(?, ?, ?)',
-          [name, number, aTypeOfFood]
+        List<Map<String, dynamic>> searchResult = await db.query(
+          'Food',
+        where: 'name = ?',
+          whereArgs: [name]
 
         );
-       }
-    }
 
-  }
+        if (searchResult.isNotEmpty) { // 如果先前有这条食材
+          Map<String, dynamic> result = searchResult.first;
+          double beforeNumber = result['value'] ?? 0;
+
+          await db.rawUpdate( // 更新数据
+          'UPDATE Food SET value = ? WHERE name = ?',
+          [(beforeNumber + number).round(), name]
+          );
+        }
+        else {
+          await db.rawInsert(
+              'INSERT INTO Food(name, value, type) VALUES(?, ?, ?)',
+              [name, number, aTypeOfFood]
+
+          );
+        }
+      }
+
+    }
 
   }
 

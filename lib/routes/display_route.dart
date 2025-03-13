@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:ai_tool/global/static.dart';
+import 'package:ai_tool/routes/tabs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -62,10 +63,15 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
     return;
   }
 
-  // TODO 在食材更新后应重新build，并使InkWell失去焦点
   @override
   Widget build(BuildContext context) {
     super.build(context);
+
+    // 在食材更新后重新构建页面，并使InkWell失去焦点
+    final bool shouldRefresh = RefreshInheritedWidget.of(context)?.shouldRefresh ?? false;
+    if (shouldRefresh) {
+      _refresh();
+    }
 
     getData();
 
@@ -81,20 +87,25 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              decoration: InputDecoration(
-                hintText: '搜索',
-                prefixIcon: Icon(Icons.search)
+
+            if (_itemCount != 0)...[ // 展开操作符...将列表中的元素都添加至children
+              TextField(
+                decoration: InputDecoration(
+                    hintText: '搜索',
+                    prefixIcon: Icon(Icons.search)
+                ),
               ),
-            ),
-            _itemCount == 0 
-                ? Text('还没有添加食材哦')
-                : Expanded(
-                child: RefreshIndicator(
-                    onRefresh: _refresh,
-                    child: foodGridList()
-                )
-            ),
+              Expanded(
+                  child: RefreshIndicator(
+                      onRefresh: _refresh,
+                      child: foodGridList()
+                  )
+              ),
+            ],
+
+            if (_itemCount == 0)
+              Text('还没有添加食材哦'),
+
             
             
           ],
@@ -126,7 +137,7 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
 
 
 
-        return AnimationConfiguration.staggeredGrid(
+        return AnimationConfiguration.staggeredGrid( // 加载动画
             position: index,
             columnCount: 3,
             duration: Duration(milliseconds: 350),
@@ -183,7 +194,7 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
                                     IconButton(onPressed: () { // -1按钮
                                       number -= 1;
                                       db.rawUpdate('UPDATE Food SET value = ? WHERE name = ?', [number, name]);
-                                      setState(() {
+                                      setState(() { // 以特定格式（若有小数点后数据就保留两位，否则显示整数）显示数值
                                         _numberController.text = double.parse((result[index]['value'] as double).toStringAsFixed(2)) * 100 % 100 == 0
                                             ? number.toInt().toString()
                                             : number.toStringAsFixed(2);
@@ -282,7 +293,7 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
 
   Future<void> _refresh() async {
     setState(() {
-
+      selectedIndex = null;
     });
   }
 

@@ -31,6 +31,7 @@ class _RecipeRouteState extends State<RecipeRoute> with AutomaticKeepAliveClient
   String username = Global.username;
   late Database db;
   late List<Map<String, dynamic>> result;
+  late Map<String, dynamic> consumeFood;
   List selectedIndex = [];
 
   String reply = ''; // ai回复
@@ -153,6 +154,44 @@ class _RecipeRouteState extends State<RecipeRoute> with AutomaticKeepAliveClient
       }
 
       print('finish');
+
+      consumeFood = jsonDecode(consume);
+
+      for (var aTypeOfFood in Global.foodTypes) {
+        try {
+          List foodList = consumeFood[aTypeOfFood] as List;
+          for (var aFood in foodList) {
+            Map<String, dynamic> aFoodObject = aFood;
+
+            for (var entry in aFoodObject.entries) {
+
+              String name = entry.key;
+              dynamic number = entry.value;
+
+              List<Map<String, dynamic>> searchResult = await db.query(
+                  'Food',
+                  where: 'name = ?',
+                  whereArgs: [name]
+
+              );
+
+              if (searchResult.isNotEmpty) { // 如果先前有这条食材
+                Map<String, dynamic> result = searchResult.first;
+                double beforeNumber = result['value'] ?? 0;
+
+                await db.rawUpdate( // 更新数据
+                    'UPDATE Food SET value = ? WHERE name = ?',
+                    [(beforeNumber - number).round(), name]
+                );
+              }
+            }
+          }
+
+
+        } catch(e) {
+          print('$aTypeOfFood类型不存在：$e');
+        }
+      }
 
       print(reply);
       print(consume);

@@ -1,11 +1,11 @@
 import 'package:ai_tool/global/static.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:async';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ai_tool/resources/app_colors.dart';
 
 //登录页面
 class LoginPage extends StatefulWidget {
@@ -60,30 +60,32 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "登录注册页面",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          "登录",
+          style: TextStyle(color: AppColors.textInvert.withValues(alpha: 0.9),
+          fontWeight: FontWeight.bold,
+          fontSize: 30),
         ),
-        backgroundColor: Colors.green,
+        backgroundColor: AppColors.primary,
       ),
-      backgroundColor: Colors.lightGreen[100],
+      backgroundColor: AppColors.surface,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.android,
+              Icon(
+                CupertinoIcons.book,
                 size: 100,
-                color: Colors.green,
+                color: AppColors.secondary.withValues(alpha: 0.7),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'AI-Tool',
+              Text(
+                '智能食谱',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: AppColors.textDefault.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 40),
@@ -94,8 +96,11 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _usernameController,
                   decoration: InputDecoration(
                     hintText: '请输入账号',
+                    hintStyle: TextStyle(
+                      color: AppColors.textDefault.withValues(alpha: 0.4)
+                    ),
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: AppColors.surfaceGrey,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
@@ -112,8 +117,11 @@ class _LoginPageState extends State<LoginPage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: '请输入密码',
+                    hintStyle: TextStyle(
+                        color: AppColors.textDefault.withValues(alpha: 0.4)
+                    ),
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: AppColors.surfaceGrey,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
@@ -139,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                         _rememberPassword = value!;
                       });
                     },
-                    activeColor: Colors.green,
+                    activeColor: AppColors.primary.withValues(alpha: 0.8),
                   ),
                   const Text('记住密码'),
                 ],
@@ -157,7 +165,7 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: AppColors.primaryGrey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -181,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     }, // 调用登录验证方法
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -257,23 +265,27 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("注册页面", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.green,
+        title: Text("注册", style: TextStyle(
+            color: AppColors.textInvert,
+            fontWeight: FontWeight.bold,
+            fontSize: 30
+        )),
+        backgroundColor: AppColors.primary,
       ),
-      backgroundColor: Colors.lightGreen[100],
+      backgroundColor: AppColors.surface,
       body: Center(
         child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.app_registration, size: 100, color: Colors.green),
+              Icon(Icons.app_registration, size: 100, color: AppColors.secondary),
               const SizedBox(height: 30),
-              const Text(
+              Text(
                 '用户注册',
                 style: TextStyle(
-                  fontSize: 32,
+                  fontSize: 34,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: AppColors.textDefault,
                 ),
               ),
               const SizedBox(height: 40),
@@ -284,8 +296,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _usernameController,
                   decoration: InputDecoration(
                     hintText: '请输入账号',
+                    hintStyle: TextStyle(
+                        color: AppColors.textDefault.withValues(alpha: 0.4)
+                    ),
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: AppColors.surfaceGrey,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
@@ -302,8 +317,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: '请输入密码',
+                    hintStyle: TextStyle(
+                        color: AppColors.textDefault.withValues(alpha: 0.4)
+                    ),
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: AppColors.surfaceGrey,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
@@ -320,8 +338,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: '请重复输入密码',
+                    hintStyle: TextStyle(
+                        color: AppColors.textDefault.withValues(alpha: 0.4)
+                    ),
                     filled: true,
-                    fillColor: Colors.white70,
+                    fillColor: AppColors.surfaceGrey,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide.none,
@@ -339,7 +360,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
+                      backgroundColor: AppColors.primaryGrey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -348,9 +369,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         vertical: 15,
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       '返回',
-                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      style: TextStyle(fontSize: 18, color: AppColors.textInvert),
                     ),
                   ),
                   // 确认按钮
@@ -362,7 +383,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     },
 
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),

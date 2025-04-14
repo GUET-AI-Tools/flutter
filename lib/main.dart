@@ -6,8 +6,8 @@ import 'package:ai_tool/routes/input_route.dart';
 import 'package:flutter/material.dart';
 import 'package:ai_tool/routes/login_route.dart'; // 登录页面
 import 'package:ai_tool/routes/tabs.dart'; // 导入 tabs.dart 文件
-import 'package:fluttertoast/fluttertoast.dart'; 
-
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:ai_tool/resources/app_colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +29,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const seedColor = AppColors.primary;
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 255, 149, 83)),
+        colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
         useMaterial3: true,
       ),
       onGenerateRoute: (settings) {

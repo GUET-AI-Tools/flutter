@@ -86,13 +86,24 @@ class OtherOperations {
     onCreate: ((Database db, int version) async {
 
       await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
+      await db.execute('CREATE TABLE IF NOT EXISTS Recipes(id INTEGER PRIMARY KEY, name TEXT, content TEXT, ingredients TEXT, createTime INTEGER)');
     }
     )
   );
 
-  await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');  // 开发环境可能需要
+  try {
+    // 检查表结构
+    var columns = await db.rawQuery('PRAGMA table_info(Food)');
+    bool hasTypeColumn = columns.any((col) => col['name'] == 'type');
 
-
+    // 如果没有type列，添加它
+    if (!hasTypeColumn) {
+      await db.execute('ALTER TABLE Food ADD COLUMN type TEXT');
+      print('已向Food表添加type列');
+    }
+  } catch (e) {
+    print('检查数据库结构时出错: $e');
+  }
 
   Map<String, dynamic> food = jsonDecode(reply); // 不是哥们，原来你把内层的也转化成对象了吗
 

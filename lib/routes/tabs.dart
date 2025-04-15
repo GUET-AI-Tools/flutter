@@ -115,7 +115,7 @@ class _TabsPageState extends State<TabsPage> {
 
               IconButton(onPressed: () { // 退出至登录页
                 Fluttertoast.showToast(
-                  msg: '“你这个人，真的满脑子都是自己呢”',
+                  msg: '退出成功',
                 );
                 Navigator.pushReplacementNamed(context, 'login');
               },

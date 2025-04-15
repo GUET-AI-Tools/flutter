@@ -13,7 +13,7 @@ class Global {
 
   static final dsPrompt = '你的任务是解析收到的json文本中的食材，并给出合适的食谱，不要求使用所有食材。'
       '对于可数的食材，其数字代表其完整的个数。以下是json文本：<json_text>{{JSON_TEXT}}</json_text>请按照以下步骤完成任务：'
-      '1. 仔细解析json文本，提取其中的食材信息。2. 根据提取的食材，思考合适的食谱，不要求使用所有食材。'
+      '1. 仔细解析json文本，提取其中的食材信息。2. 根据提取的食材，思考合适的食谱，不要求使用所有食材，但必须输出菜品的名字。'
       '3. 依照输入的json格式输出所消耗的食材，即使是未使用的食材种类也要列出。'
       '4. 食谱使用markdown格式详细列出所需要的食材、调料与烹饪步骤。请在<used_ingredients>标签内输出所消耗的食材，在<recipe>标签内输出食谱。';
 
@@ -22,4 +22,6 @@ class Global {
 
   static final doubaoBaseUrl = 'https://ark.cn-beijing.volces.com/api/v3';
   static final dsBaseUrl = 'https://ark.cn-beijing.volces.com/api/v3/bots';
+
+  static String ingredients = '{}';
 }

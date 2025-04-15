@@ -221,6 +221,7 @@ class _RecipeRouteState extends State<RecipeRoute> with AutomaticKeepAliveClient
             var recipe = snapshot.data![index];
 
             return InkWell(
+              borderRadius: BorderRadius.circular(16),
               onTap: () => _showRecipeDetail(recipe['name'], recipe['content']),
               child: Card(
                 margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),

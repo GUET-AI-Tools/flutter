@@ -10,11 +10,13 @@ class DbOperations {
         version: 1,
         onCreate: ((Database db, int version) async {
           await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
+          await db.execute('CREATE TABLE IF NOT EXISTS Recipes(id INTEGER PRIMARY KEY, name TEXT, content TEXT, ingredients TEXT, createTime INTEGER)');
         }
         )
     );
 
     await db.execute('DROP TABLE IF EXISTS Food');
+    await db.execute('DROP TABLE IF EXISTS Recipes');
 
     await db.close();
 

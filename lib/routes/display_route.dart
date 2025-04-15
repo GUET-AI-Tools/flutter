@@ -45,7 +45,7 @@ class _DisplayRouteState extends State<DisplayRoute> with AutomaticKeepAliveClie
       '${username}_database.db',
       version: 1,
       onCreate: ((Database db, int version) async {
-      await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL)');
+      await db.execute('CREATE TABLE IF NOT EXISTS Food(id INTEGER PRIMARY KEY, name TEXT, value REAL, type TEXT)');
     })
     );
 
